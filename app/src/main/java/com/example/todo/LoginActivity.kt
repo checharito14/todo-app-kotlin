@@ -26,12 +26,18 @@ class LoginActivity : AppCompatActivity() {
 
     private fun initUI() {
         binding.btnLogin.setOnClickListener {
-//            val email = binding.etEmail.text.toString().trim()
-////            val password = binding.etPassword.text.toString()
-////
-////            login(email, password)
-        val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            val email = binding.etEmail.text.toString().trim()
+            val password = binding.etPassword.text.toString()
+
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(
+                    baseContext,
+                    "Completa todos los campos.",
+                    Toast.LENGTH_SHORT,
+                ).show()
+            } else {
+                login(email, password)
+            }
         }
     }
 

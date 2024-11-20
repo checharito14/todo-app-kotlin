@@ -24,7 +24,7 @@ class TaskViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         cbTask.isChecked = task.isSelected
         tvTask.text = task.name
 
-        val color = when (task.category) {
+        val color = when (TaskCategory.fromString(task.category)) {
             TaskCategory.Business -> R.color.category_business
             TaskCategory.Other -> R.color.category_other
             TaskCategory.Personal -> R.color.category_personal

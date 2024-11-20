@@ -2,8 +2,10 @@ package com.example.todo
 
 import android.app.Dialog
 import android.app.Person
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     )
 
     private val tasks = mutableListOf<Task>()
+    private val taskReferences = mutableListOf<DatabaseReference>()
 
     private lateinit var rvCategories: RecyclerView
     private lateinit var categoriesAdapter: CategoriesAdapter
@@ -30,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var rvTareas: RecyclerView
     private lateinit var tareasAdapter: TaskAdapter
     private lateinit var fabAddTask: FloatingActionButton
+    private lateinit var fabLogout: FloatingActionButton
 
     private lateinit var auth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
@@ -54,10 +58,11 @@ class MainActivity : AppCompatActivity() {
         rvCategories = findViewById(R.id.rvCategories)
         rvTareas = findViewById(R.id.rvTareas)
         fabAddTask = findViewById(R.id.fabAddTask)
+        fabLogout = findViewById(R.id.fabLogout)
     }
 
     private fun initUI() {
-        categoriesAdapter = CategoriesAdapter(categories) { categorySelected(it)}
+        categoriesAdapter = CategoriesAdapter(categories) { categorySelected(it) }
         rvCategories.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         rvCategories.adapter = categoriesAdapter
 
@@ -70,7 +75,18 @@ class MainActivity : AppCompatActivity() {
         fabAddTask.setOnClickListener {
             showDialog()
         }
+        fabLogout.setOnClickListener {
+            logout()
+        }
 
+    }
+
+    private fun logout() {
+        auth.signOut()
+
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
     private fun showDialog() {
@@ -92,26 +108,22 @@ class MainActivity : AppCompatActivity() {
                     else -> TaskCategory.Other
                 }
 
-                val newTask = Task(currentTask, currentCategory)
+                val newTask = Task(currentTask, currentCategory.toString())
                 addTaskToFirebase(newTask)
 
                 dialog.hide()
             }
 
         }
-
         dialog.show()
     }
 
     private fun addTaskToFirebase(newTask: Task) {
+        val taskWithCategoryAsString = newTask.copy(category = newTask.category.toString())
         val newTaskRef = tasksRef.push()
-        newTaskRef.setValue(newTask).addOnCompleteListener { task ->
-            if(task.isSuccessful) {
-                tasks.add(newTask)
-                updateAdapter()
-            } else {
-                Toast.makeText(this, "Error al agregar la tarea", Toast.LENGTH_SHORT).show()
-            }
+        taskReferences.add(newTaskRef)
+        newTaskRef.setValue(taskWithCategoryAsString).addOnCompleteListener { task ->
+            if (!task.isSuccessful) Toast.makeText(this, "Error al agregar la tarea", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -121,19 +133,25 @@ class MainActivity : AppCompatActivity() {
                 tasks.clear()
                 for (taskSnapshot in snapshot.children) {
                     val task = taskSnapshot.getValue(Task::class.java)
-                    task?.let { tasks.add(it) }
+                    if (task != null) {
+                        tasks.add(task)
+                    }
                 }
                 updateAdapter()
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(this@MainActivity, "Error al cargar las tareas: ${error.message}",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         })
     }
 
     private fun itemSelected(position: Int) {
-        tasks[position].isSelected = !tasks[position].isSelected
+        val taskRef = taskReferences[position]
+        val task = tasks[position]
+        task.isSelected = !task.isSelected
+        taskRef.updateChildren(mapOf("selected" to task.isSelected))
+
         updateAdapter()
     }
 
@@ -145,7 +163,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateAdapter() {
         val selectedCategories: List<TaskCategory> = categories.filter { it.isSelected }
-        val newTasks = tasks.filter { selectedCategories.contains(it.category) }
+        val newTasks = tasks.filter { task ->
+            val taskCategory = TaskCategory.fromString(task.category) // Convertimos el String a TaskCategory
+            selectedCategories.contains(taskCategory) // Comparamos objetos TaskCategory
+        }
         tareasAdapter.tasks = newTasks
         tareasAdapter.notifyDataSetChanged()
     }
