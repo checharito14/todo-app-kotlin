@@ -1,12 +1,12 @@
 <resources>
-    <string name="app_name">TODO</string>
-    <string name="title">Bienvenido, Cesar</string>
+    <string name="app_name">To-Do List</string>
+    <string name="title">Bienvenido!</string>
     <string name="categorias">Categorias</string>
     <string name="tareas">Tareas</string>
     <string name="dialog_add_task">Añade una tarea</string>
 
     <string name="personal">Personal</string>
-    <string name="business">Negocios</string>
+    <string name="business">Escuela</string>
     <string name="others">Otros</string>
     <string name="agregar_tarea">Agregar tarea</string>
     <string name="crear_cuenta">Crear cuenta</string>
@@ -15,7 +15,7 @@
     <string name="o_inicia_con">O inicia con</string>
     <string name="iniciar_sesion">Iniciar Sesion</string>
     <string name="olvide_mi_contra">Olvide mi contraseña</string>
-    <string name="ingresa_tu_contra">Ingresa tu conraseña</string>
+    <string name="ingresa_tu_contra">Ingresa tu contraseña</string>
     <string name="contra">Contraseña</string>
     <string name="ingresa_tu_email">Ingresa tu email o usuario</string>
     <string name="email">Email</string>
@@ -23,5 +23,7 @@
     <string name="titulo">Bienvenido!</string>
 
     //FIREBASE
-    <string name="google_id">267590315058-2ddn3aaim69cn6fhkhirqofm0ggvq791.apps.googleusercontent.com</string>
+
+    <string name="google_id"> 267590315058-2ddn3aaim69cn6fhkhirqofm0ggvq791.apps.googleusercontent.com</string>
+    <string name="confirm_password">Confirma tu contraseña</string>
 </resources>

@@ -147,11 +147,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun itemSelected(position: Int) {
-        val taskRef = taskReferences[position]
-        val task = tasks[position]
-        task.isSelected = !task.isSelected
-        taskRef.updateChildren(mapOf("selected" to task.isSelected))
-
+        tasks[position].isSelected = !tasks[position].isSelected
         updateAdapter()
     }
 
